@@ -26,6 +26,11 @@ public class Client {
     @JsonProperty()
     private String description;
 
+    /**
+     * Converts the object to a <b>ClientEntity</b>
+     *
+     * @return a ClientEntity instance without Id
+     * */
     public ClientEntity toClient() {
         ClientEntity client = new ClientEntity();
         client.setData(name, type, phone, birthDate, description);

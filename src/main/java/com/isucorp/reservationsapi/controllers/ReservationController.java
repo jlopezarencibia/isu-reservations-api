@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -58,7 +59,7 @@ public class ReservationController {
     ResponseEntity<ReservationEntity> toggleFavorite(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(this.reservationService.toggleFavorite(id));
-        } catch (ReservationNotFoundException e) {
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
             return null;
         }
@@ -70,7 +71,7 @@ public class ReservationController {
         try {
 //            System.out.println("Controller param location: " + reservation.getLocation());
             return ResponseEntity.ok(this.reservationService.update(id, reservation));
-        } catch (ReservationNotFoundException e) {
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
             return null;
         }

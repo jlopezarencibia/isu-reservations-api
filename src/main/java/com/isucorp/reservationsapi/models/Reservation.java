@@ -27,6 +27,11 @@ public class Reservation {
     @JsonProperty()
     private String image;
 
+    /**
+     * Converts the object to a <b>ReservationEntity</b>
+     *
+     * @return a ReservationEntity instance without Id
+     * */
     public ReservationEntity toReservation() {
         ReservationEntity reservation = new ReservationEntity();
         reservation.setData(location, date, favorite, ranking, image);

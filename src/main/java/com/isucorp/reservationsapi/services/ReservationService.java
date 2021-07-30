@@ -1,7 +1,6 @@
 package com.isucorp.reservationsapi.services;
 
 import com.isucorp.reservationsapi.entities.ReservationEntity;
-import com.isucorp.reservationsapi.exceptions.ReservationNotFoundException;
 import com.isucorp.reservationsapi.models.PageSort;
 import com.isucorp.reservationsapi.models.Reservation;
 import com.isucorp.reservationsapi.repositories.ReservationRepository;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -25,10 +25,21 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
+    /**
+     * Create a new Reservation
+     *
+     * @param reservation the Reservation data without Id
+     * @return the created Reservation
+     */
     public ReservationEntity create(Reservation reservation) {
         return reservationRepository.save(reservation.toReservation());
     }
 
+    /**
+     * Get all Reservations
+     *
+     * @return a list of Reservations
+     */
     public List<ReservationEntity> getAll() {
         return this.reservationRepository.findAll();
     }
@@ -44,37 +55,62 @@ public class ReservationService {
         ).toList();
     }
 
+    /**
+     * How many Reservations
+     *
+     * @return total of Reservations
+     */
     public Long count() {
         return this.reservationRepository.count();
     }
 
+    /**
+     * Find a Reservation with the provided Id
+     *
+     * @param id the Id of the Reservation to get
+     * @return the Reservation
+     */
     public Optional<ReservationEntity> findById(Integer id) {
         return this.reservationRepository.findById(id);
     }
 
-    public ReservationEntity toggleFavorite(Integer id) throws ReservationNotFoundException {
-        Optional<ReservationEntity> reservation = findById(id);
-        if (reservation.isPresent()) {
-            reservation.get().setFavorite(!reservation.get().isFavorite());
-            return reservationRepository.save(reservation.get());
-        }
-        throw new ReservationNotFoundException();
+    /**
+     * Toggles the Favorite status of the Reservation with the given Id
+     *
+     * @param id the Id of the Reservation to toggle Favorite
+     * @return the updated Reservation
+     */
+    public ReservationEntity toggleFavorite(Integer id) throws NoSuchElementException {
+        ReservationEntity reservation = findById(id).orElseThrow();
+        reservation.setFavorite(!reservation.isFavorite());
+        return reservationRepository.save(reservation);
     }
 
-    public ReservationEntity update(Integer id, ReservationEntity reservation) throws ReservationNotFoundException {
-        Optional<ReservationEntity> reservationEntity = findById(id);
-        if (reservationEntity.isPresent()) {
-            reservationEntity.get().setFavorite(reservation.isFavorite());
-            reservationEntity.get().setDate(reservation.getDate());
-            reservationEntity.get().setLocation(reservation.getLocation());
-            reservationEntity.get().setRanking(reservation.getRanking());
-            reservationEntity.get().setImage(reservation.getImage());
-            return reservationRepository.save(reservationEntity.get());
-        } else {
-            throw new ReservationNotFoundException();
-        }
+    /**
+     * Modify a Reservation
+     *
+     * @param id     the Id of the Reservation to update
+     * @param reservation the Client new information
+     * @return the updated Client
+     */
+    public ReservationEntity update(Integer id, ReservationEntity reservation) throws NoSuchElementException {
+        ReservationEntity reservationEntity = findById(id).orElseThrow();
+        reservationEntity.setData(
+                reservation.getLocation(),
+                reservation.getDate(),
+                reservation.isFavorite(),
+                reservation.getRanking(),
+                reservation.getImage()
+        );
+        return reservationRepository.save(reservationEntity);
     }
 
+    /**
+     * Delete a Reservation with provided Id
+     *
+     * @param id the Id of the Reservation to remove
+     * @return the removed Reservation
+     */
     public ReservationEntity removeById(Integer id) {
         var reservation = findById(id);
         if (reservation.isPresent()) {
@@ -85,6 +121,12 @@ public class ReservationService {
         }
     }
 
+    /**
+     * Saves a Reservation to the Database
+     *
+     * @param reservationEntity the Reservation to save
+     * @return the saved Reservation
+     */
     public ReservationEntity save(ReservationEntity reservationEntity) {
         return this.reservationRepository.save(reservationEntity);
     }

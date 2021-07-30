@@ -10,8 +10,8 @@ import com.isucorp.reservationsapi.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -25,23 +25,13 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    /**
-     * Returns all the clients in the database
-     *
-     * @return All clients
-     * */
+
     @GetMapping()
     public @ResponseBody
     ResponseEntity<List<ClientEntity>> all() {
         return ResponseEntity.ok(this.clientService.getAll());
     }
 
-    /**
-     * Returns all the clients in the database paged
-     *
-     * @param options Options for pagination
-     * @return All clients in a page
-     * */
     @GetMapping("/paged")
     public @ResponseBody
     ResponseEntity<List<ClientEntity>> getPaged(@io.swagger.v3.oas.annotations.parameters.RequestBody PageSort options) {
@@ -65,7 +55,7 @@ public class ClientController {
     ResponseEntity<ClientEntity> remove(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(this.clientService.deleteById(id));
-        } catch (ClientNotFoundException e) {
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
             return ResponseEntity.notFound().build();
         }
@@ -89,7 +79,7 @@ public class ClientController {
     ResponseEntity<ClientEntity> edit(@PathVariable Integer id, @RequestBody Client client) {
         try {
             return ResponseEntity.ok(this.clientService.update(id, client));
-        } catch (ClientNotFoundException e) {
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
             return null;
         }
